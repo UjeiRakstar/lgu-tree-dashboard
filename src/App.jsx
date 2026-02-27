@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient'; 
 import './App.css';
 import Login from './components/Login';
-
+import Settings from './components/Settings';
 // Importing our modular Blueprints
 import Header from './components/Header';
 import MetricsCards from './components/MetricsCards';
@@ -21,6 +21,12 @@ function App() {
   // State for Arborists
   const [arborists, setArborists] = useState([]);
   
+  // Settings State
+    const [mapSettings, setMapSettings] = useState({
+      style: 'street',
+      cinematicFlyby: true
+    });
+
   // Updated Map Filters (Removed Mango, Added Legacy/Untagged)
   const [layerFilters, setLayerFilters] = useState({
     showHealthy: true,
@@ -138,6 +144,7 @@ function App() {
               arborists={arborists}
               assignTicket={assignTicket}
               allTrees={trees}
+              mapSettings={mapSettings}
             />
           </>
         )}
@@ -156,6 +163,10 @@ function App() {
           <ManageArborists />
         )}
 
+        {activeTab === 'settings' && (
+          <Settings mapSettings={mapSettings} setMapSettings={setMapSettings} />
+        )}
+        
       </div>
     </div>
   );

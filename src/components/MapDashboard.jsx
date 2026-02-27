@@ -4,12 +4,17 @@ import { MapContainer, TileLayer, CircleMarker, Marker, Popup, useMap } from 're
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Cinematic Recenter Button
-function RecenterButton({ center }) {
+function RecenterButton({ center, cinematicFlyby }) {
   const map = useMap();
   return (
     <button 
-      onClick={() => map.flyTo(center, 17, { duration: 1.5 })}
+      onClick={() => {
+        if (cinematicFlyby) {
+          map.flyTo(center, 17, { duration: 1.5 }); // Smooth flight
+        } else {
+          map.setView(center, 17); // Instant snap
+        }
+      }}
       title="Return to LGU Center"
       style={{ position: 'absolute', bottom: '20px', left: '20px', zIndex: 1000, backgroundColor: '#16a34a', color: 'white', border: 'none', borderRadius: '50%', width: '50px', height: '50px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', transition: 'transform 0.2s' }}
       onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
@@ -29,10 +34,17 @@ const hazardIcon = new L.divIcon({
   popupAnchor: [0, -14] 
 });
 
-export default function MapDashboard({ lspuCenter, filteredMapTrees, layerFilters, toggleFilter, deleteTree, arborists, assignTicket, allTrees }) {
+export default function MapDashboard({ lspuCenter, filteredMapTrees, layerFilters, toggleFilter, deleteTree, arborists, assignTicket, allTrees, mapSettings }) {
   
-  // State to control the Dispatch Modal
   const [dispatchTree, setDispatchTree] = useState(null);
+
+  // NEW: Determine which map layer to show based on the settings!
+  let tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"; // Default Street
+  if (mapSettings?.style === 'satellite') {
+    tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  } else if (mapSettings?.style === 'topo') {
+    tileUrl = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
+  }
 
   return (
     <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', marginBottom: '30px', position: 'relative' }}>
@@ -120,8 +132,11 @@ export default function MapDashboard({ lspuCenter, filteredMapTrees, layerFilter
         </div>
 
         <MapContainer center={lspuCenter} zoom={17} style={{ height: '100%', width: '100%' }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
-          <RecenterButton center={lspuCenter} />
+          {/* UPDATED: Dynamic Tile Layer! */}
+          <TileLayer url={tileUrl} />
+          
+          {/* UPDATED: Pass the animation setting to the button */}
+          <RecenterButton center={lspuCenter} cinematicFlyby={mapSettings?.cinematicFlyby} />
           
           {filteredMapTrees.map((tree) => {
             if (!tree.latitude || !tree.longitude) return null;

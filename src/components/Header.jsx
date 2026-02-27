@@ -46,6 +46,14 @@ export default function Header({ activeTab, setActiveTab, criticalCount }) {
         >
           👥 Field Team
         </button>
+
+        {/* NEW: The Settings Button */}
+        <button 
+          onClick={() => setActiveTab('settings')}
+          style={{ padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', backgroundColor: activeTab === 'settings' ? 'white' : 'transparent', color: activeTab === 'settings' ? '#8b5cf6' : 'white', transition: 'all 0.2s' }}
+        >
+          ⚙️ Settings
+        </button>
         
         <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(255,255,255,0.3)', margin: '0 5px' }}></div>      </div>
       
